@@ -33,12 +33,10 @@ const Dashboard = () => {
         data,
         data: { latestRecord },
       } = await getLatestRecordByUser(customHeader, id);
-      console.log("LATEST", latestRecord);
       setbalance(latestRecord.userBalance);
     } catch (error) {
       const { data, status } = error?.response || "";
-      console.log("error", data);
-
+      
       /**NO records registered */
       if (status === 404) setbalance(100);
     }

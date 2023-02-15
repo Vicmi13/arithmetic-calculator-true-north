@@ -45,9 +45,8 @@ const EnhancedTable = () => {
 
   useEffect(() => {
     if (selectorOperationRegistered) {
-      console.log("==== operationRegistered", selectorOperationRegistered);
       dispatch(operationRegistered());
-      recoverRecordsByUser();
+      recoverRecordsByUser(order, orderBy, page, rowsPerPage);
     }
   }, [selectorOperationRegistered]);
 
@@ -57,6 +56,7 @@ const EnhancedTable = () => {
 
   useEffect(() => {
     console.log("TITKA RECIRD", recordList.length);
+    console.log("TITKA RECIRD", recordList);
   });
 
   const recoverRecordsByUser = async (order, orderBy, newPage, newRows) => {
@@ -81,9 +81,8 @@ const EnhancedTable = () => {
         setRecordList(data.records);
         setTotalRecords(data.totalRecords);
       }
-      console.log("RECORDS", data.records);
+      // console.log("RECORDS", data.records);
     } catch (error) {
-      console.log("ERROR HERE", error);
       dispatch(
         alertDetail({
           severity: "error",
@@ -171,8 +170,7 @@ const EnhancedTable = () => {
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row.name)}
-                      role="checkbox"
-                      tabIndex={-1}
+                      // tabIndex={-1}
                       key={row.id}
                     >
                       <TableCell component="th" scope="row">

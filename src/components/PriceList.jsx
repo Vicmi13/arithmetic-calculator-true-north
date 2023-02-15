@@ -49,8 +49,7 @@ const PriceList = () => {
           data.errorDetail = data.errorDetail + " so the session will close";
           //
         }
-        console.log("error data", data);
-
+        
         dispatch(
           alertDetail({
             severity: "error",

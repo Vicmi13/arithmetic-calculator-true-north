@@ -46,7 +46,6 @@ const LoginForm = () => {
       let message = "";
       if (!!error.response) {
         const { data } = error.response;
-        console.log("error data", data);
         message = data.errorDetail;
       } else message = "Error in request, please try later";
       dispatch(alertDetail({ severity: "error", message }));

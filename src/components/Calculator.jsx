@@ -25,9 +25,6 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
 
   useEffect(() => {
     if (operationInProgress) {
-      console.log("firstValue", firstValue);
-      console.log("secondValue", secondValue);
-      console.log("operationSelected", operationSelected);
       createNewRecord();
     }
   }, [operationInProgress]);
@@ -49,7 +46,6 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
             operationId: id,
             userId,
           };
-          console.log("body", body);
           const { data } = await createOperationRecord(customHeader, body);
           const {
             result,
@@ -58,8 +54,7 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
           if (!!data.refreshedToken) {
             dispatch(storeToken(data));
           }
-          console.log("create RECORD", result);
-
+          
           /** SCENARIO for random-string */
           if (operationId === 6)
             showInfoForRandomString(user_balance, operation_response);
@@ -72,7 +67,6 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
 
           dispatch(operationRegistered());
         } catch (error) {
-          console.log("error RESPONSE", error);
           // const { data } = error.response;
           // console.log("Error create new record", data);
           dispatch(
@@ -136,7 +130,6 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
         return;
       } else {
         if (operationSelected === id) {
-          console.log("HACER REQUEST");
           setOperationInProgress(true);
           setSecondValue(output);
         } else {

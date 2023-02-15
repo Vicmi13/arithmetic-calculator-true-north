@@ -8,7 +8,6 @@ export const authenticationSlice = createSlice({
   },
   reducers: {
     storeToken: (state, { payload }) => {
-      // console.log("payload", payload);
       state.userToken = payload.token || payload.refreshedToken;
       localStorage.setItem("auth", payload.token || payload.refreshedToken);
     },
