@@ -1,0 +1,11 @@
+section {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+  margin: 10px 0;
+  padding: 5px;
+  width: 80%;
+  text-align: center;
+}
+
+.grid {
+  border: 0.3px solid #cce0ff;
+}

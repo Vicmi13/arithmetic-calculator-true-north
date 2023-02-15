@@ -1,0 +1,19 @@
+.layout {
+  display: grid;
+  border: 3px solid goldenrod;
+  /* TODO modify values for RD */
+  grid-template-columns: 40% 60%;
+  gap: 10px;
+  /* ALINEAR elementos horizontal*/
+  justify-items: center;
+  /* ALINEAR elementos vertical */
+  align-items: flex-start;
+}
+
+.calculator-container {
+  border: red solid 2px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

@@ -1,0 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap");
+
+:root {
+  font-family: "IBM Plex Sans";
+  max-width: 1800px;
+  /* padding: 2rem;*/
+  border: 2px solid rgb(84, 186, 223);
+}
