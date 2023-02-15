@@ -63,7 +63,6 @@ export const OPERATOR_BUTTONS = [
     symbol: 0,
     name: "zero",
   },
-
   {
     symbol: ".",
     name: "dot",

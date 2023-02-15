@@ -1,6 +1,6 @@
-section {
+.price-list-section {
   box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
-  margin: 10px 0;
+  margin: 15px 0;
   padding: 5px;
   width: 80%;
   text-align: center;

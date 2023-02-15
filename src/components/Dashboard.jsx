@@ -11,6 +11,7 @@ import "./dashboard.css";
 
 const Dashboard = () => {
   const userToken = useSelector(selectUserToken);
+
   const [balance, setbalance] = useState(0);
   const [userId, setuserId] = useState(null);
 
@@ -28,20 +29,29 @@ const Dashboard = () => {
       const {
         data: { latestRecord },
       } = await retrieveLatestRecordByUser(customHeader, id);
+      console.log("LATEST", latestRecord);
       setbalance(latestRecord.userBalance);
     } catch (error) {
       const { data } = error?.response || "";
-      console.log(data);
+      console.log("error", data);
     }
   };
 
   return (
     <div className="layout">
       <section className="calculator-container">
-        <Calculator userBalance={balance} userId={userId} />
+        <Calculator
+          userBalance={balance}
+          userId={userId}
+          setBalance={setbalance}
+        />
         <PriceList />
       </section>
-      <Balance amount={balance} />
+
+      <section>
+        <Balance amount={balance} s />
+        <h4>table</h4>
+      </section>
     </div>
   );
 };

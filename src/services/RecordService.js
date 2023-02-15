@@ -7,10 +7,10 @@ export const retrieveLatestRecordByUser = async (headerObject, id) => {
   );
 };
 
-export const createRecord = async (headerObject) => {
+export const createOperationRecord = async (headerObject, body) => {
   return await axios.post(
-    `${import.meta.env.VITE_BASE_URL_DEV}/record/last-operation/${id}`,
-    {},
+    `${import.meta.env.VITE_BASE_URL_DEV}/record`,
+    body,
     headerObject
   );
 };

@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { OPERATOR_BUTTONS } from "../constants/calculator-buttons";
+import { alertDetail, showAlert } from "../features/alert/alertSlice";
+import { selectUserToken, storeToken } from "../features/auth/authSlice";
 import { selectOperationList } from "../features/operation/operationSlice";
-import { calculateOperation } from "../utils/operations";
+import { createOperationRecord } from "../services/RecordService";
+import { addAuthorizationToHeader } from "../utils/request";
 import "./calculator.css";
 
-const Calculator = ({ userBalance, userId }) => {
+const Calculator = ({ userBalance, userId, setBalance }) => {
+  const selectorUserToken = useSelector(selectUserToken);
+  const selectorOperationList = useSelector(selectOperationList);
+  const dispatch = useDispatch();
+
   const [output, setOutput] = useState(0);
   const [firstValue, setfirstValue] = useState(0);
   const [secondValue, setSecondValue] = useState(0);
   const [operationSelected, setoperationSelected] = useState("");
   const [operationInProgress, setOperationInProgress] = useState(false);
-
-  const selectorOperationList = useSelector(selectOperationList);
+  const [operationResponse, setOperationResponse] = useState(false);
 
   useEffect(() => {
     if (operationInProgress) {
@@ -25,23 +31,89 @@ const Calculator = ({ userBalance, userId }) => {
 
   const createNewRecord = async () => {
     if (selectorOperationList.length) {
+      const customHeader = addAuthorizationToHeader(selectorUserToken);
+
       const { id, cost } = selectorOperationList.find(
         (element) => element.type === operationSelected
       );
-      const body = {
-        amount: cost,
-        valueOne: firstValue,
-        valuetwo: secondValue,
-        userBalance,
-        operationId: id,
-        userId,
-      };
+      if (userBalance >= cost) {
+        try {
+          const body = {
+            amount: cost,
+            valueOne: firstValue,
+            valueTwo: secondValue,
+            userBalance,
+            operationId: id,
+            userId,
+          };
+          console.log("body", body);
+          const { data } = await createOperationRecord(customHeader, body);
 
-      console.log("body", body);
-      // await make REQUEST
+          const {
+            result,
+            result: { user_balance, operation_response, operationId },
+          } = data;
+          if (!!data.refreshedToken) {
+            dispatch(storeToken(data));
+          }
+
+          console.log("create RECORD", result);
+          /** SCENARIO for random-string */
+          if (operationId === 6)
+            showInfoForRandomString(user_balance, operation_response);
+          else {
+            setOutput(operation_response);
+          }
+          setOperationInProgress(false);
+          setBalance(user_balance);
+          setOperationResponse(true);
+        } catch (error) {
+          console.log("error RESPONSE", error);
+          // const { data } = error.response;
+          // console.log("Error create new record", data);
+          dispatch(
+            alertDetail({
+              severity: "error",
+              message: data.errorDetail || error,
+            })
+          );
+          dispatch(showAlert());
+        }
+      } else {
+        dispatch(
+          alertDetail({
+            severity: "warning",
+            message:
+              'You don"t have enough credit to make this request, please contact the admin',
+          })
+        );
+        dispatch(showAlert());
+      }
     } else {
       console.log("Error retrieving catalog information, please try again");
     }
+  };
+
+  const calculateSquareRoot = (operation) => {
+    setOperationInProgress(true);
+    setoperationSelected(operation);
+    setSecondValue(output);
+  };
+
+  const generateRandomString = (operation) => {
+    setOperationInProgress(true);
+    setoperationSelected(operation);
+  };
+
+  const showInfoForRandomString = (userBalance, operationResponse) => {
+    setOutput(0);
+    dispatch(showAlert());
+    dispatch(
+      alertDetail({
+        severity: "success",
+        message: `Random string generated: ${operationResponse} successfully`,
+      })
+    );
   };
 
   const handleButtonSelected = ({ operation, symbol, id }) => {
@@ -49,19 +121,32 @@ const Calculator = ({ userBalance, userId }) => {
       if (id === 7) {
         setOperationInProgress(true);
         setSecondValue(output);
+      } else if (id === 5) {
+        /**SCENARIO for square-root */
+        calculateSquareRoot(operation);
+      } else if (id === 6) {
+        /**SCENARIO for random-string */
+        generateRandomString(operation);
+      } else if (id === 8) {
+        /**SCENARIO for A/C button - DISABLED */
+        return;
       } else {
         if (operationSelected === id) {
           console.log("HACER REQUEST");
           setOperationInProgress(true);
           setSecondValue(output);
         } else {
-          // setoperationSelected(id);
           setoperationSelected(operation);
           setfirstValue(output);
           setOutput(0);
         }
       }
     } else {
+      if (operationResponse) {
+        setOutput(0);
+        setOperationResponse(false);
+      }
+
       if (output) {
         setOutput((output) => output + symbol.toString());
       } else setOutput(symbol);
@@ -69,7 +154,6 @@ const Calculator = ({ userBalance, userId }) => {
   };
 
   return (
-    // TODO reduce calculator size
     <div className="calculator">
       <div className="calculator__output">{output}</div>
 

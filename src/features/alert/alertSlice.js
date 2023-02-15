@@ -5,7 +5,7 @@ export const alertSlice = createSlice({
   initialState: {
     severity: "info",
     message: "",
-    time: 5000,
+    time: 4000,
     isAlertOpen: false,
   },
   reducers: {
@@ -28,4 +28,5 @@ export const { alertDetail, showAlert, hideAlert } = alertSlice.actions;
 export const selectIsAlertOpen = (state) => state.alert.isAlertOpen;
 export const selectMessage = (state) => state.alert.message;
 export const selectSeverity = (state) => state.alert.severity;
+export const selectTime = (state) => state.alert.time;
 export default alertSlice.reducer;
