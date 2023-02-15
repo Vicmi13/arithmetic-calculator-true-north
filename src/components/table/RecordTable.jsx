@@ -23,40 +23,7 @@ import {
 import { alertDetail, showAlert } from "../../features/alert/alertSlice";
 import { sanitizeDate } from "../../utils/utils";
 import { typeOperationFormat } from "../../utils/operations";
-import { IconButton } from "@mui/material";
-
-function descendingComparator(a, b, orderBy) {
-  console.log("orderBy", orderBy);
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+import { IconButton, Typography } from "@mui/material";
 
 const EnhancedTable = () => {
   const selectorUserToken = useSelector(selectUserToken);
@@ -70,27 +37,39 @@ const EnhancedTable = () => {
   const [orderBy, setOrderBy] = useState("id");
   const [selected, setSelected] = React.useState([]);
   const [recordList, setRecordList] = useState([]);
+  const [totalRecords, setTotalRecords] = useState();
 
   /** Pagination */
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  useEffect(() => {
-    recoverRecordsByUser();
-  }, []);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     if (selectorOperationRegistered) {
       console.log("==== operationRegistered", selectorOperationRegistered);
+      dispatch(operationRegistered());
       recoverRecordsByUser();
     }
   }, [selectorOperationRegistered]);
 
-  const recoverRecordsByUser = async () => {
+  useEffect(() => {
+    recoverRecordsByUser(order, orderBy, page, rowsPerPage);
+  }, [order, orderBy, page, rowsPerPage]);
+
+  useEffect(() => {
+    console.log("TITKA RECIRD", recordList.length);
+  });
+
+  const recoverRecordsByUser = async (order, orderBy, newPage, newRows) => {
     try {
       let userId;
       if (!!decodedToken.id) userId = decodedToken.id;
-      const queryParams = { page, pageSize: rowsPerPage, userId };
+      const queryParams = {
+        page: newPage,
+        pageSize: newRows,
+        userId,
+        order,
+        orderBy,
+      };
       const { data, status } = await getRecordsByUser(
         customHeader,
         queryParams
@@ -100,6 +79,7 @@ const EnhancedTable = () => {
       }
       if (!!data.records) {
         setRecordList(data.records);
+        setTotalRecords(data.totalRecords);
       }
       console.log("RECORDS", data.records);
     } catch (error) {
@@ -135,15 +115,6 @@ const EnhancedTable = () => {
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
@@ -173,14 +144,9 @@ const EnhancedTable = () => {
     setPage(0);
   };
 
-  const isSelected = (name) => {
-    console.log("name isSelected", name);
-    selected.indexOf(name) !== -1;
-  };
-
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - totalRecords) : 0;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -192,48 +158,24 @@ const EnhancedTable = () => {
             aria-labelledby="tableTitle"
             size={"medium"}
           >
-            {/* TODO row count debe ser todos los items
-            no solo los de esa pagina */}
             <HeadCellRecord
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={recordList.length}
             />
             <TableBody>
-              {stableSort(recordList, getComparator(order, orderBy))
+              {recordList
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row.name)}
                       role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
+                      key={row.id}
                     >
-                      {/* <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
-                      </TableCell> */}
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        // padding="none"
-                      >
+                      <TableCell component="th" scope="row">
                         {row.id}
                       </TableCell>
                       <TableCell align="left">
@@ -270,17 +212,25 @@ const EnhancedTable = () => {
               )}
             </TableBody>
           </Table>
+
+          {!recordList.length && (
+            <Typography variant="h6" component="h4" style={{ marginTop: 50 }}>
+              There aren't records yet, please use the calculator
+            </Typography>
+          )}
         </TableContainer>
 
-        {/* <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        /> */}
+        {totalRecords && (
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 20]}
+            component="div"
+            count={totalRecords}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        )}
       </Paper>
     </Box>
   );

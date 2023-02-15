@@ -1,0 +1,9 @@
+.subtitle {
+
+    disableTypography: true,
+    textAlign: "left",
+    color: "#1C2668",
+    spacing: 12,
+    fontWeight: "bold",
+    fontSize: 30,
+}

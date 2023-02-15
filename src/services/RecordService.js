@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const getRecordsByUser = async (headerObject, params) => {
-  const { page, pageSize, userId, sort } = params;
+  const { page, pageSize, userId, order, orderBy } = params;
 
   const config = {
     headers: { Authorization: headerObject.headers["Authorization"] },
@@ -9,6 +9,8 @@ export const getRecordsByUser = async (headerObject, params) => {
       pageSize,
       page,
       userId,
+      order,
+      orderBy,
     },
   };
   return await axios.get(`${import.meta.env.VITE_BASE_URL_DEV}/record`, config);
