@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@mui/system";
 import "./balance.css";
 
+// TODO validate when you dont have more credit
 const Balance = ({ amount }) => {
-  const [currentBalance, setCurrentBalance] = useState(amount || 100);
+  const [currentBalance, setCurrentBalance] = useState(0);
 
   useEffect(() => {
-    setCurrentBalance(amount);
+    amount !== 0 ? setCurrentBalance(amount) : setCurrentBalance(100);
   }, [amount]);
 
   return (

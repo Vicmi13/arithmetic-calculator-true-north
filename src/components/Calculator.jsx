@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { OPERATOR_BUTTONS } from "../constants/calculator-buttons";
 import { alertDetail, showAlert } from "../features/alert/alertSlice";
 import { selectUserToken, storeToken } from "../features/auth/authSlice";
-import { selectOperationList } from "../features/operation/operationSlice";
+import {
+  selectOperationList,
+  operationRegistered,
+} from "../features/operation/operationSlice";
 import { createOperationRecord } from "../services/RecordService";
 import { addAuthorizationToHeader } from "../utils/request";
 import "./calculator.css";
@@ -48,7 +51,6 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
           };
           console.log("body", body);
           const { data } = await createOperationRecord(customHeader, body);
-
           const {
             result,
             result: { user_balance, operation_response, operationId },
@@ -56,8 +58,8 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
           if (!!data.refreshedToken) {
             dispatch(storeToken(data));
           }
-
           console.log("create RECORD", result);
+
           /** SCENARIO for random-string */
           if (operationId === 6)
             showInfoForRandomString(user_balance, operation_response);
@@ -67,6 +69,8 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
           setOperationInProgress(false);
           setBalance(user_balance);
           setOperationResponse(true);
+
+          dispatch(operationRegistered());
         } catch (error) {
           console.log("error RESPONSE", error);
           // const { data } = error.response;

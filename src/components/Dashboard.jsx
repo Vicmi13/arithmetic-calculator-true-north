@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import jwt_decode from "jwt-decode";
+
 import Balance from "./Balance";
 import Calculator from "./Calculator";
 import PriceList from "./PriceList";
-import jwt_decode from "jwt-decode";
-import { retrieveLatestRecordByUser } from "../services/RecordService";
-import { useSelector } from "react-redux";
+import { getLatestRecordByUser } from "../services/RecordService";
 import { selectUserToken } from "../features/auth/authSlice";
 import { addAuthorizationToHeader } from "../utils/request";
-import "./dashboard.css";
 import EnhancedTable from "./table/RecordTable";
+import "./dashboard.css";
 
+// TODO validate when you dont have more credit
 const Dashboard = () => {
   const userToken = useSelector(selectUserToken);
 
@@ -28,13 +30,17 @@ const Dashboard = () => {
     try {
       const customHeader = addAuthorizationToHeader(userToken);
       const {
+        data,
         data: { latestRecord },
-      } = await retrieveLatestRecordByUser(customHeader, id);
+      } = await getLatestRecordByUser(customHeader, id);
       console.log("LATEST", latestRecord);
       setbalance(latestRecord.userBalance);
     } catch (error) {
-      const { data } = error?.response || "";
+      const { data, status } = error?.response || "";
       console.log("error", data);
+
+      /**NO records registered */
+      if (status === 404) setbalance(100);
     }
   };
 

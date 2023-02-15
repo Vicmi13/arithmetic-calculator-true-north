@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,35 +7,24 @@ import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
+import jwt_decode from "jwt-decode";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import EnhancedTableToolbar from "./Toolbar";
 import HeadCellRecord from "./HeadCellRecord";
-
-function createData(name, calories, fat, carbs, protein) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
-
-const rows = [
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Donut", 452, 25.0, 51, 4.9),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Honeycomb", 408, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Jelly Bean", 375, 0.0, 94, 0.0),
-  createData("KitKat", 518, 26.0, 65, 7.0),
-  createData("Lollipop", 392, 0.2, 98, 0.0),
-  createData("Marshmallow", 318, 0, 81, 2.0),
-  createData("Nougat", 360, 19.0, 9, 37.0),
-  createData("Oreo", 437, 18.0, 63, 4.0),
-];
+import { getRecordsByUser } from "../../services/RecordService";
+import { addAuthorizationToHeader } from "../../utils/request";
+import { selectUserToken, storeToken } from "../../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  operationRegistered,
+  selectOperationRegistered,
+} from "../../features/operation/operationSlice";
+import { alertDetail, showAlert } from "../../features/alert/alertSlice";
+import { sanitizeDate } from "../../utils/utils";
+import { typeOperationFormat } from "../../utils/operations";
+import { IconButton } from "@mui/material";
+import { red } from "@mui/material/colors";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -69,12 +58,60 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function EnhancedTable() {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("id");
+const EnhancedTable = () => {
+  const selectorUserToken = useSelector(selectUserToken);
+  const selectorOperationRegistered = useSelector(selectOperationRegistered);
+  const dispatch = useDispatch();
+
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("id");
   const [selected, setSelected] = React.useState([]);
+  const [recordList, setRecordList] = useState([]);
+
+  /** Pagination */
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  useEffect(() => {
+    recoverRecordsByUser();
+  }, []);
+
+  useEffect(() => {
+    if (selectorOperationRegistered) {
+      console.log("==== operationRegistered", selectorOperationRegistered);
+      recoverRecordsByUser();
+    }
+  }, [selectorOperationRegistered]);
+
+  const recoverRecordsByUser = async () => {
+    try {
+      const customHeader = addAuthorizationToHeader(selectorUserToken);
+      const decodedToken = jwt_decode(selectorUserToken);
+      let userId;
+      if (!!decodedToken.id) userId = decodedToken.id;
+      const queryParams = { page, pageSize: rowsPerPage, userId };
+      const { data, status } = await getRecordsByUser(
+        customHeader,
+        queryParams
+      );
+      if (!!data.refreshedToken) {
+        dispatch(storeToken(data));
+      }
+      if (!!data.records) {
+        setRecordList(data.records);
+      }
+      console.log("RECORDS", data.records);
+    } catch (error) {
+      console.log("ERROR HERE", error);
+      dispatch(
+        alertDetail({
+          severity: "error",
+          message: data.errorDetail || error,
+        })
+      );
+      dispatch(showAlert());
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -120,7 +157,10 @@ export default function EnhancedTable() {
     setPage(0);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (name) => {
+    console.log("name isSelected", name);
+    selected.indexOf(name) !== -1;
+  };
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -136,16 +176,18 @@ export default function EnhancedTable() {
             aria-labelledby="tableTitle"
             size={"medium"}
           >
+            {/* TODO row count debe ser todos los items
+            no solo los de esa pagina */}
             <HeadCellRecord
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={recordList.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(recordList, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row.name);
@@ -161,7 +203,7 @@ export default function EnhancedTable() {
                       key={row.name}
                       selected={isItemSelected}
                     >
-                      <TableCell padding="checkbox">
+                      {/* <TableCell padding="checkbox">
                         <Checkbox
                           color="primary"
                           checked={isItemSelected}
@@ -169,19 +211,35 @@ export default function EnhancedTable() {
                             "aria-labelledby": labelId,
                           }}
                         />
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell
                         component="th"
                         id={labelId}
                         scope="row"
-                        padding="none"
+                        // padding="none"
                       >
-                        {row.name}
+                        {row.id}
                       </TableCell>
-                      <TableCell align="right">{row.calories}</TableCell>
-                      <TableCell align="right">{row.fat}</TableCell>
-                      <TableCell align="right">{row.carbs}</TableCell>
-                      <TableCell align="right">{row.protein}</TableCell>
+                      <TableCell align="left">
+                        {typeOperationFormat(row.operation.type)}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.operation_response}
+                      </TableCell>
+                      <TableCell align="center">{row.amount}</TableCell>
+                      <TableCell align="center">$ {row.user_balance}</TableCell>
+                      <TableCell align="center">
+                        {sanitizeDate(row.createdAt)}
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          onClick={() => console.log("clicked", row.id)}
+                          aria-label="delete"
+                          sx={{ color: "#df4646" }}
+                        >
+                          <DeleteIcon> </DeleteIcon>
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -198,7 +256,7 @@ export default function EnhancedTable() {
           </Table>
         </TableContainer>
 
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={rows.length}
@@ -206,8 +264,10 @@ export default function EnhancedTable() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </Paper>
     </Box>
   );
-}
+};
+
+export default EnhancedTable;

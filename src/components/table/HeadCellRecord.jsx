@@ -24,7 +24,7 @@ const headCells = [
     id: "response",
     numeric: false,
     disablePadding: false,
-    label: "Operation response)",
+    label: "Operation response",
   },
   {
     id: "cost",
@@ -42,19 +42,18 @@ const headCells = [
     id: "date",
     numeric: true,
     disablePadding: false,
-    label: "updatedDate",
+    label: "Date",
+  },
+
+  {
+    id: "delete",
+    numeric: false,
+    disablePadding: false,
   },
 ];
 
 const HeadCellRecord = (props) => {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
 
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -63,7 +62,7 @@ const HeadCellRecord = (props) => {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
+        {/* <TableCell padding="checkbox">
           <Checkbox
             color="primary"
             indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -73,12 +72,12 @@ const HeadCellRecord = (props) => {
               "aria-label": "select all desserts",
             }}
           />
-        </TableCell>
+        </TableCell> */}
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? "right" : "center"}
-            padding={headCell.disablePadding ? "none" : "normal"}
+            align={"center"}
+            padding="normal"
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel

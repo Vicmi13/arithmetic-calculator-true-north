@@ -4,15 +4,23 @@ export const operationSlice = createSlice({
   name: "operation",
   initialState: {
     operationList: [],
+    newOperationRegistered: false,
   },
   reducers: {
     saveOperationList: (state, { payload }) => {
-      console.log("payload", payload);
       state.operationList = payload;
+    },
+    operationRegistered: (state) => {
+      const currentState = state.newOperationRegistered;
+      state.newOperationRegistered = !currentState;
     },
   },
 });
 
-export const { saveOperationList } = operationSlice.actions;
+export const { saveOperationList, operationRegistered } =
+  operationSlice.actions;
 export const selectOperationList = (state) => state.operation.operationList;
+export const selectOperationRegistered = (state) =>
+  state.operation.newOperationRegistered;
+
 export default operationSlice.reducer;
