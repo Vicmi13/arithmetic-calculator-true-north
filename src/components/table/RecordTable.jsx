@@ -12,7 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import EnhancedTableToolbar from "./Toolbar";
 import HeadCellRecord from "./HeadCellRecord";
-import { getRecordsByUser } from "../../services/RecordService";
+import { deleteRecord, getRecordsByUser } from "../../services/RecordService";
 import { addAuthorizationToHeader } from "../../utils/request";
 import { selectUserToken, storeToken } from "../../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,9 +24,9 @@ import { alertDetail, showAlert } from "../../features/alert/alertSlice";
 import { sanitizeDate } from "../../utils/utils";
 import { typeOperationFormat } from "../../utils/operations";
 import { IconButton } from "@mui/material";
-import { red } from "@mui/material/colors";
 
 function descendingComparator(a, b, orderBy) {
+  console.log("orderBy", orderBy);
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -60,6 +60,9 @@ function stableSort(array, comparator) {
 
 const EnhancedTable = () => {
   const selectorUserToken = useSelector(selectUserToken);
+  const customHeader = addAuthorizationToHeader(selectorUserToken);
+  const decodedToken = jwt_decode(selectorUserToken);
+
   const selectorOperationRegistered = useSelector(selectOperationRegistered);
   const dispatch = useDispatch();
 
@@ -85,8 +88,6 @@ const EnhancedTable = () => {
 
   const recoverRecordsByUser = async () => {
     try {
-      const customHeader = addAuthorizationToHeader(selectorUserToken);
-      const decodedToken = jwt_decode(selectorUserToken);
       let userId;
       if (!!decodedToken.id) userId = decodedToken.id;
       const queryParams = { page, pageSize: rowsPerPage, userId };
@@ -107,6 +108,21 @@ const EnhancedTable = () => {
         alertDetail({
           severity: "error",
           message: data.errorDetail || error,
+        })
+      );
+      dispatch(showAlert());
+    }
+  };
+
+  const removeRecord = async (id) => {
+    try {
+      const { status } = await deleteRecord(customHeader, id);
+      if (status === 200) recoverRecordsByUser();
+    } catch (error) {
+      dispatch(
+        alertDetail({
+          severity: "error",
+          message: "Error removing record, please try later",
         })
       );
       dispatch(showAlert());
@@ -233,7 +249,7 @@ const EnhancedTable = () => {
                       </TableCell>
                       <TableCell align="center">
                         <IconButton
-                          onClick={() => console.log("clicked", row.id)}
+                          onClick={() => removeRecord(row.id)}
                           aria-label="delete"
                           sx={{ color: "#df4646" }}
                         >
