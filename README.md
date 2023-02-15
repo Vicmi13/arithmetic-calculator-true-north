@@ -18,3 +18,10 @@
 - Install Node 18.10.0 through nvm
 - Once you have installed nvm, you can install the version `nvm i 18.10.0`
 - Set the Node version to be used: `nvm use 18.10.0`
+
+
+## Local setup 
+- Once  you copied the .env.example file notice that has the URL for develop environment 
+  in case you want to runs with local server, please change the value
+
+  Enjoy it
