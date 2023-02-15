@@ -35,7 +35,6 @@ const EnhancedTable = () => {
 
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
-  const [selected, setSelected] = React.useState([]);
   const [recordList, setRecordList] = useState([]);
   const [totalRecords, setTotalRecords] = useState();
 
@@ -53,11 +52,6 @@ const EnhancedTable = () => {
   useEffect(() => {
     recoverRecordsByUser(order, orderBy, page, rowsPerPage);
   }, [order, orderBy, page, rowsPerPage]);
-
-  useEffect(() => {
-    console.log("TITKA RECIRD", recordList.length);
-    console.log("TITKA RECIRD", recordList);
-  });
 
   const recoverRecordsByUser = async (order, orderBy, newPage, newRows) => {
     try {
@@ -114,26 +108,6 @@ const EnhancedTable = () => {
     setOrderBy(property);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -150,7 +124,7 @@ const EnhancedTable = () => {
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -164,12 +138,11 @@ const EnhancedTable = () => {
             />
             <TableBody>
               {recordList
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
                       // tabIndex={-1}
                       key={row.id}
                     >
