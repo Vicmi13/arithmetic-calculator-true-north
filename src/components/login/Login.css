@@ -1,0 +1,56 @@
+/* .login-container {
+  margin: 20px auto;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 400px;
+  height: 60vh;
+  min-width: 220px;
+  min-height: 350px;
+  border: 2px solid rgb(59, 132, 228);
+} */
+
+.login-container {
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: red 2px solid;
+}
+
+.card-login {
+  width: 28vw;
+  min-width: 400px;
+  min-height: 450px;
+  height: 60vh;
+}
+
+.title {
+  padding-top: 18px;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+
+.subtitle {
+  font-family: "inherit";
+  padding-top: 2px;
+  color: "#afaeb4";
+}
+
+.login-form {
+  width: 75%;
+}
+
+.background-image {
+  /* maxHeight: "100%",
+     maxWidth: "100%", */
+  min-width: 100%;
+  min-height: 100%;
+  height: 97.5vh;
+  width: "auto";
+  object-fit: "cover";
+  background-repeat: "no-repeat";
+  background-position: "center";
+}

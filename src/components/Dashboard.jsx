@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { selectUserToken } from "../features/auth/authSlice";
 import { addAuthorizationToHeader } from "../utils/request";
 import "./dashboard.css";
+import EnhancedTable from "./table/RecordTable";
 
 const Dashboard = () => {
   const userToken = useSelector(selectUserToken);
@@ -50,7 +51,7 @@ const Dashboard = () => {
 
       <section>
         <Balance amount={balance} s />
-        <h4>table</h4>
+        <EnhancedTable />
       </section>
     </div>
   );
