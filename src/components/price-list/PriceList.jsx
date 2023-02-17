@@ -2,18 +2,18 @@ import React, { useEffect, useState } from "react";
 import "./price-list.css";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import recoverAllOperations from "../services/OperationService";
-import { addDecimalValues, typeOperationFormat } from "../utils/operations";
+import recoverAllOperations from "../../services/OperationService";
+import { addDecimalValues, typeOperationFormat } from "../../utils/operations";
 import { useSelector, useDispatch } from "react-redux";
 import {
   modifiedStatusUserLogged,
   removeToken,
   selectUserToken,
   storeToken,
-} from "../features/auth/authSlice";
-import { addAuthorizationToHeader } from "../utils/request";
-import { alertDetail, showAlert } from "../features/alert/alertSlice";
-import { saveOperationList } from "../features/operation/operationSlice";
+} from "../../features/auth/authSlice";
+import { addAuthorizationToHeader } from "../../utils/request";
+import { alertDetail, showAlert } from "../../features/alert/alertSlice";
+import { saveOperationList } from "../../features/operation/operationSlice";
 import { useNavigate } from "react-router";
 
 const PriceList = () => {
@@ -49,7 +49,7 @@ const PriceList = () => {
           data.errorDetail = data.errorDetail + " so the session will close";
           //
         }
-        
+
         dispatch(
           alertDetail({
             severity: "error",

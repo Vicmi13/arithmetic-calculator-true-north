@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router";
-import CustomizedSnackbars from "./components/CustomSnackBar";
-import Dashboard from "./components/Dashboard";
+import CustomizedSnackbars from "./components/snack-bar/CustomSnackBar";
+import Dashboard from "./components/dashboard/Dashboard";
 import LoginForm from "./components/login/LoginForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 

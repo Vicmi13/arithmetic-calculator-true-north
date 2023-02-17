@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 import {
   removeToken,
   modifiedStatusUserLogged,
-} from "../features/auth/authSlice";
+} from "../../features/auth/authSlice";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -56,15 +56,6 @@ const Header = () => {
           </Typography>
 
           <div>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-            >
-              <ArticleIcon />
-            </IconButton>
             <IconButton
               size="large"
               aria-label="account of current user"

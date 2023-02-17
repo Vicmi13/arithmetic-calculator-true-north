@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { OPERATOR_BUTTONS } from "../constants/calculator-buttons";
-import { alertDetail, showAlert } from "../features/alert/alertSlice";
-import { selectUserToken, storeToken } from "../features/auth/authSlice";
+import { OPERATOR_BUTTONS } from "../../constants/calculator-buttons";
+import { alertDetail, showAlert } from "../../features/alert/alertSlice";
+import { selectUserToken, storeToken } from "../../features/auth/authSlice";
 import {
   selectOperationList,
   operationRegistered,
-} from "../features/operation/operationSlice";
-import { createOperationRecord } from "../services/RecordService";
-import { addAuthorizationToHeader } from "../utils/request";
+} from "../../features/operation/operationSlice";
+import { createOperationRecord } from "../../services/RecordService";
+import { addAuthorizationToHeader } from "../../utils/request";
 import "./calculator.css";
 
 const Calculator = ({ userBalance, userId, setBalance }) => {
@@ -54,7 +54,7 @@ const Calculator = ({ userBalance, userId, setBalance }) => {
           if (!!data.refreshedToken) {
             dispatch(storeToken(data));
           }
-          
+
           /** SCENARIO for random-string */
           if (operationId === 6)
             showInfoForRandomString(user_balance, operation_response);

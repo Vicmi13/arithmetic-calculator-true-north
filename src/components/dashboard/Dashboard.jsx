@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
 
-import Balance from "./Balance";
-import Calculator from "./Calculator";
-import PriceList from "./PriceList";
-import { getLatestRecordByUser } from "../services/RecordService";
-import { selectUserToken } from "../features/auth/authSlice";
-import { addAuthorizationToHeader } from "../utils/request";
-import EnhancedTable from "./table/RecordTable";
+import Balance from "../balance/Balance";
+import Calculator from "../calculator/Calculator";
+import PriceList from "../price-list/PriceList";
+import { getLatestRecordByUser } from "../../services/RecordService";
+import { selectUserToken } from "../../features/auth/authSlice";
+import { addAuthorizationToHeader } from "../../utils/request";
+import EnhancedTable from "../table/RecordTable";
 import "./dashboard.css";
 
 // TODO validate when you dont have more credit
@@ -36,7 +36,7 @@ const Dashboard = () => {
       setbalance(latestRecord.userBalance);
     } catch (error) {
       const { data, status } = error?.response || "";
-      
+
       /**NO records registered */
       if (status === 404) setbalance(100);
     }
